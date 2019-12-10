@@ -19,7 +19,7 @@
 %% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 %% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 %% SOFTWARE.
-\ProvidesClass{mcdowellcv}[2017/06/18 v1.2.0 McDowell CV class]
+\ProvidesClass{mcdowellcv}[2015/12/15 v1.1.0 McDowell CV class]
 
 % Set up the fonts according to options
 \def\mainfontsize{11pt}
@@ -39,8 +39,6 @@
 
 % Set font face
 \usepackage{fontspec}
-\setmainfont[SmallCapsFeatures={Renderer=Basic},
-Ligatures={TeX, NoCommon, NoDiscretionary}]{\mainfontface}
 
 % Remove paragraph indentation
 \usepackage[parfill]{parskip} 
@@ -66,51 +64,29 @@ Ligatures={TeX, NoCommon, NoDiscretionary}]{\mainfontface}
 % separation to a negative value to suppress a single parskip before lists
 \setlist{leftmargin=*, noitemsep, topsep=-1\parskip}
 
-% For adjusting spacing based on the platform used
-\usepackage{ifthen}
-\usepackage{ifplatform}
-
 % For spcaed small caps
 \usepackage{microtype}
 
 \DeclareMicrotypeSet*{smallcapsi} { 
 	encoding = {OT1,T1,T2A,LY1,OT4,QX,T5,TS1,EU1,EU2},
-	shape = {sc*,si,scit}
+	shape    = {sc*,si,scit}
 }
 
 %--------------------------------------------------------------------------------
 %                                    Constants                                  -
 %--------------------------------------------------------------------------------
-
-\ifthenelse{\equal{\platformname}{\notwindowsname}}{
-	\def\namespaceskip{0.575em}
-	\def\afterheaderspace{1.1pt}
-	\def\beforesectionheaderspace{5pt}
-	\def\sectionheadermargin{6pt}
-	\def\beforesectionheaderhrulespace{2.85pt}
-	\def\sectionheaderhrlueheight{0.518pt}
-	\def\aftersectionheaderspace{-5.8pt}
-	\def\aftersinglelinesubsectionheaderspace{-20.25pt}
-	\def\afterdoublelinesubsectionheaderspace{-11.75pt}
-	\def\aftermultilinesubsectionheaderspace{-7.75pt}
-	\def\afteremptysubsectionheaderspace{1.25pt}
-	\def\subsectionmargin{9pt}
-	\def\aftersubsectionspace{2.1pt}
-}{
-	\def\namespaceskip{0.4em}
-	\def\afterheaderspace{3pt}
-	\def\beforesectionheaderspace{4.75pt}
-	\def\sectionheadermargin{6pt}
-	\def\beforesectionheaderhrulespace{3pt}
-	\def\sectionheaderhrlueheight{0.5pt}
-	\def\aftersectionheaderspace{-4pt}
-	\def\aftersinglelinesubsectionheaderspace{-18.5pt}
-	\def\afterdoublelinesubsectionheaderspace{-10pt}
-	\def\aftermultilinesubsectionheaderspace{-6pt}
-	\def\afteremptysubsectionheaderspace{3pt}
-	\def\subsectionmargin{9pt}
-	\def\aftersubsectionspace{4pt}
-}
+\def\afterheaderspace{3pt}
+\def\beforesectionheaderspace{4.75pt}
+\def\sectionheadermargin{6pt}
+\def\aftersectionheaderspace{-4pt}
+\def\sectionheaderhrlueheight{0.5pt}
+\def\aftersinglelinesubsectionheaderspace{-12pt}
+\def\afterdoublelinesubsectionheaderspace{-12pt}
+\def\aftermultilinesubsectionheaderspace{-6pt}
+\def\aftershortsubsectionheaderspace{-20pt}
+\def\afteremptysubsectionheaderspace{3pt}
+\def\subsectionmargin{9pt}
+\def\aftersubsectionspace{3pt}
 
 %--------------------------------------------------------------------------------
 %                            Header Setup and Printing                          -
@@ -134,11 +110,14 @@ Ligatures={TeX, NoCommon, NoDiscretionary}]{\mainfontface}
 \newcommand\name[1]{\def\@name{#1}}
 \name{}
 
+
+\newcommand\site[1]{\def\@site{#1}}
+\site{}
+
 \newcommand\printname{
-	\typeout {kokoko}
-	\typeout \spaceskip
-	\spaceskip \namespaceskip \relax
-	\textbf{\LARGE\textls[110]{\textsc{\@name}}}
+	\textbf{\LARGE\textsc{\@name}}
+	\linebreak
+	\@site
 }
 
 \makeatother
@@ -178,7 +157,7 @@ Ligatures={TeX, NoCommon, NoDiscretionary}]{\mainfontface}
 	\begin{adjustwidth}{\sectionheadermargin}{\sectionheadermargin}
 		\textsc{\textbf{#1}}
 	\end{adjustwidth}
-	\vspace*{\beforesectionheaderhrulespace}
+	\smallskip
 	\hrule height \sectionheaderhrlueheight
 	\vspace*{\aftersectionheaderspace}
 }{}
@@ -196,16 +175,25 @@ Ligatures={TeX, NoCommon, NoDiscretionary}]{\mainfontface}
 	\notblank{#3}{\toggletrue{centertitledefined}}{}
 	\notblank{#4}{\toggletrue{righttitledefined}}{}
 	\ifboolexpr{togl {lefttitledefined} or togl {centertitledefined} or togl {righttitledefined}}{
-		\begin{tabu} to 1\textwidth { X[l,p] X[c,p] X[r,p] }
+	\ifboolexpr{  togl {lefttitledefined} and not (togl {righttitledefined}) and not (togl {centertitledefined}) }{
+		\begin{tabu} to \linewidth {X[l,p]}
+			\textbf{#2} \\
+		\end{tabu}
+	}{
+		\begin{tabu} to \linewidth {@{} X[l,p] X[c,p] X[r,p] }
 			\textbf{#2} & \textbf{#3} & \textbf{#4} \\
 		\end{tabu}
-		% Add space according to the specidied number of lines
+		}
+		% Add space according to the specified number of lines
 		\ifnumcomp{#1}{=}{1}{\vspace*{\aftersinglelinesubsectionheaderspace}}{
 			\ifnumcomp{#1}{=}{2}{\vspace*{\afterdoublelinesubsectionheaderspace}}{
-				\vspace*{\aftermultilinesubsectionheaderspace}
+			    \ifnumcomp{#1}{=}{3}{\vspace*{\aftershortsubsectionheaderspace}}{
+			    \vspace*{\aftermultilinesubsectionheaderspace}}
+				
 			}
 		}
 	}{
+	    % This is if no header is defined, from the ifboolexpr
 		\vspace*{\afteremptysubsectionheaderspace}
 	}
 	\togglefalse{lefttitledefined}
